@@ -1,0 +1,19 @@
+{
+  "name": "numberguessingbot",
+  "version": "1.0.0",
+  "description": "Build a bot that introduces a number guessing game. It should start by sending a welcome message like \"Welcome to the number guessing game! Guess a number from 1-20\". Behind the scenes the bot should randomly choose a number between 1 and 20. The user should guess a number and the bot should respond with \"the number is higher\", \"the number is lower\" or \"You are correct!\" depending on the number they enter. The bot should also keep track of how many attempts the user has taken and should use the number as a score that it reports at the end of the conversation. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "(https://github.com/ryanvolum/CaaP-OpenHack.git)"
+  },
+  "author": "Katie Prochilo",
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^3.15.0",
+    "restify": "^7.2.0"
+  }
+}
