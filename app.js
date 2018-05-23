@@ -28,12 +28,10 @@ server.post('/api/messages', connector.listen());
 
 // Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
 var bot = new builder.UniversalBot(connector, function (session) {
-    initialize(session);
     if (guessAttempts >= 1) {
         var guess = session.message.text;
         if (isValidNumber(guess)) {
-            session.send(evaluateGuess(guess));
-            guessAttempts++;
+            evaluateGuess(guess, session);
         } else {
             session.send("That wasn't a valid number, try again.");
         }
@@ -45,7 +43,7 @@ var bot = new builder.UniversalBot(connector, function (session) {
 });
 
 function initialize(session) {
-    session.send("Welcome to the number guessing game! Guess a number from 1-20");
+    session.send("Welcome to the number guessing game! Guess a number from 1-20.");
     randomNumber = Math.floor(Math.random() * 20) + 1;
     guessAttempts = 1;
 }
@@ -57,20 +55,21 @@ function isValidNumber(guess) {
     }
     // The guess is not an integer within range
     return false;
-
 }
 
-function evaluateGuess(guess) {
+function evaluateGuess(guess, session) {
     if (guess < randomNumber) {
-        return "The number is higher.";
+        guessAttempts++;
+        session.send("The number is higher.");
     }
     else if (guess > randomNumber) {
-        return "The number is lower.";
+        guessAttempts++;
+        session.send("The number is lower.");
     }
     else if (guess == randomNumber) {
-        var resp = ('You are correct!\nYou found the right answer in ' + guessAttempts + ' tries. Good work!');
-        guessAttempts = 0;
-        return resp;
+        session.send('You are correct!')
+        session.send('You found the right answer in ' + guessAttempts + ' tries. Good work!');
+        initialize(session);
     }
     else {
         return "I couldn't evaluate your guess for some reason."
