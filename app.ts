@@ -5,20 +5,20 @@
  * Notifies user each time if their guess was correct, too high, or too low.
  */
 
-var restify = require('restify');
-var builder = require('botbuilder');
-var guessAttempts = 0;
-var randomNumber = 0;
+let restify: any = require('restify');
+let builder: any = require('botbuilder');
+let guessAttempts: number = 0;
+let randomNumber: number = 0;
 
 
 // Setup Restify Server
-var server = restify.createServer();
+let server:any = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
    console.log('%s listening to %s', server.name, server.url); 
 });
 
 // Create chat connector for communicating with the Bot Framework Service
-var connector = new builder.ChatConnector({
+let connector: any = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
@@ -27,9 +27,9 @@ var connector = new builder.ChatConnector({
 server.post('/api/messages', connector.listen());
 
 // Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
-var bot = new builder.UniversalBot(connector, function (session) {
+let bot: any = new builder.UniversalBot(connector, function (session) {
     if (guessAttempts >= 1) {
-        var guess = session.message.text;
+        let guess: string = session.message.text;
         if (isValidNumber(guess)) {
             evaluateGuess(guess, session);
         } else {
