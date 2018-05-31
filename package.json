@@ -1,19 +1,26 @@
 {
-  "name": "numberguessingbot",
+  "name": "experimentalbot",
   "version": "1.0.0",
-  "description": "Build a bot that introduces a number guessing game. It should start by sending a welcome message like \"Welcome to the number guessing game! Guess a number from 1-20\". Behind the scenes the bot should randomly choose a number between 1 and 20. The user should guess a number and the bot should respond with \"the number is higher\", \"the number is lower\" or \"You are correct!\" depending on the number they enter. The bot should also keep track of how many attempts the user has taken and should use the number as a score that it reports at the end of the conversation. ",
+  "description": "A bot to test the capabilities of the vs botbuilder SDK, currently a preview version.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "(https://github.com/ryanvolum/CaaP-OpenHack.git)"
+    "url": "git+https://github.com/KatiePro/ExperimentalBot.git"
   },
   "author": "Katie Prochilo",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KatiePro/ExperimentalBot/issues"
+  },
+  "homepage": "https://github.com/KatiePro/ExperimentalBot#readme",
   "dependencies": {
-    "botbuilder": "^3.15.0",
+    "@types/node": "^10.1.4",
+    "@types/restify": "^5.0.8",
+    "@types/typescript": "^2.0.0",
+    "botbuilder": "^4.0.0-preview1.2",
     "restify": "^7.2.0"
   }
 }

@@ -1,77 +1,77 @@
-/* Number Guessing Bot
- * 
- * Generates a random number 1-20 for the user to guess.
- * 
- * Notifies user each time if their guess was correct, too high, or too low.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
-let restify = require('restify');
-let builder = require('botbuilder');
+import { BotFrameworkAdapter, BotStateSet, ConversationState, MemoryStorage, TurnContext, UserState, StoreItem } from "botbuilder";
+import { } from "botbuilder-dialogs";
+import * as restify from "restify";
+
+// Create server
+const server: any = restify.createServer();
+server.listen(process.env.port || process.env.PORT || 3978, () => {
+    // tslint:disable-next-line:no-console
+    console.log(`${server.name} listening to ${server.url}`);
+});
+
+// Create adapter
+const adapter = new BotFrameworkAdapter({
+    appId: process.env.MICROSOFT_APP_ID,
+    appPassword: process.env.MICROSOFT_APP_PASSWORD,
+});
+
+// Add state middleware
+const storage = new MemoryStorage();
+const convoState = new ConversationState(storage);
+const userState = new UserState(storage);
+adapter.use(new BotStateSet(convoState, userState));
+
+// Initialize variables for program logic
 let guessAttempts: number = 0;
 let randomNumber: number = 0;
 
-
-// Setup Restify Server
-let server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
-});
-
-// Create chat connector for communicating with the Bot Framework Service
-let connector: any = new builder.ChatConnector({
-    appId: process.env.MicrosoftAppId,
-    appPassword: process.env.MicrosoftAppPassword
-});
-
-// Listen for messages from users 
-server.post('/api/messages', connector.listen());
-
-// Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
-let bot: any = new builder.UniversalBot(connector, function (session) {
-    if (guessAttempts >= 1) {
-        let guess: string = session.message.text;
-        if (isValidNumber(guess)) {
-            evaluateGuess(guess, session);
-        } else {
-            session.send("That wasn't a valid number, try again.");
+// Listen for incoming requests
+server.post("/api/messages", (req: any, res: any) => {
+    // Route received request to adapter for processing
+    adapter.processActivity(req, res, async (context: TurnContext) => {
+        // const state = convoState.get(context);
+        // const count = state!.count === undefined ? state!.count = 0 : ++state!.count;
+        if (context.activity.type === "message") {
+            const guess = context.activity.text;
+            // tslint:disable-next-line:no-console
+            guessAttempts = evaluateGuess(guess, guessAttempts, context);
+            // await context.sendActivity(`${count}: You said "${context.activity.text}"`);
+        } else if (context.activity.type === "conversationUpdate" && context.activity.membersAdded![0].name !== "Bot") {
+            randomNumber = await initialize(context);
         }
-    } else if (guessAttempts == 0) {
-        initialize(session);
-    } else {
-        session.send("Hmm... Something went wrong, let's start over.");
-    }
+    });
 });
 
-function initialize(session) {
-    session.send("Welcome to the number guessing game! Guess a number from 1-20.");
+function initialize(context: any) {
     randomNumber = Math.floor(Math.random() * 20) + 1;
-    guessAttempts = 1;
+    context.sendActivity("Welcome to the number guessing game! Guess a number from 1-20.");
+    return randomNumber;
 }
 
-function isValidNumber(guess) {
-    // The guess is an integer within range
-    if (guess <= 20 && guess >= 1) {
-        return true;
-    }
-    // The guess is not an integer within range
-    return false;
-}
-
-function evaluateGuess(guess, session) {
-    if (guess < randomNumber) {
+function evaluateGuess(guess: string, guessAttempts: number, context: any): number {
+    if (isNaN(Number(guess))) {
+        context.sendActivity("Numbers only, please");
+        return guessAttempts;
+    } else if (Number(guess) > 20 || Number(guess) < 1) {
+        context.sendActivity("Your guess should be between 1 and 20");
+        return guessAttempts;
+    } else if (Number(guess) < randomNumber) {
+        context.sendActivity("The number is higher.");
+        return guessAttempts++;
+    } else if (Number(guess) > randomNumber) {
+        context.sendActivity("The number is lower.");
+        return guessAttempts++;
+    } else if (Number(guess) === randomNumber) {
+        context.sendActivity("You are correct!");
         guessAttempts++;
-        session.send("The number is higher.");
-    }
-    else if (guess > randomNumber) {
-        guessAttempts++;
-        session.send("The number is lower.");
-    }
-    else if (guess == randomNumber) {
-        session.send('You are correct!');
-        session.send('You found the right answer in ' + guessAttempts + ' tries. Good work!');
-        initialize(session);
-    }
-    else {
-        return "I couldn't evaluate your guess for some reason.";
+        context.sendActivity("You found the right answer in " + guessAttempts + " tries. Good work!");
+        initialize(context);
+        return 0;
+    } else {
+        context.sendActivity("I couldn't evaluate your guess for some reason.");
+        return guessAttempts;
     }
 }
